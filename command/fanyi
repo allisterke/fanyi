@@ -34,7 +34,7 @@ translate() {
         grep -P -o '<ul class="base-list switch_part".*?>.*?<\/ul>' | 
         grep -o -P '<li.*?li>' |
         sed -r 's/<\/?[a-z]+[^>]*>//g' | 
-        tr -d ' ')
+        sed -r 's/\s+/ /g')
     
     mkdir -p $dir
     if [[ -n "$p" || -n "$e" ]]; then
@@ -55,7 +55,7 @@ for word in $*; do
                 echo -e "\t$line"
             done < <(echo "$result")
     
-            if ! grep "^$word$" $hf > /dev/null; then # save to history
+            if [[ ! -f $hf ]] || ! grep "^$word$" $hf > /dev/null; then # save to history
                 echo $word >> $hf
             fi
         fi
