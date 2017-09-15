@@ -1,0 +1,12 @@
+_fanyi() {
+    local hf=~/.fanyi_history
+    touch $hf
+    local cur=${COMP_WORDS[COMP_CWORD]}
+    if [[ $cur == '-r' ]]; then
+        COMPREPLY=
+    else
+        COMPREPLY=( $(compgen -W "$(cat $hf | sort)" $cur) )
+    fi
+}
+
+complete -F _fanyi fanyi

@@ -1,0 +1,64 @@
+#!/bin/bash
+if [[ $# -eq 0 ]]; then
+    echo -e "usage:\t $(basename $0) [-r] <WORD> ..."
+    echo "options: "
+    echo -e "\t -r: remove"
+    exit 1
+fi
+
+hf=~/.fanyi_history
+dir=~/.fanyi
+remove=false
+
+if [[ $1 == "-r" ]]; then
+    remove=true
+    shift
+fi
+
+translate() {
+    word=${1,,} 
+    if [[ -f $dir/$word ]]; then
+        cat $dir/$word
+        exit 0
+    fi
+
+    content=$(curl -s http://www.iciba.com/$1)
+    p=$(echo "$content" | 
+        grep -o -P '<span>[英|美] \[.*?\]</span>' | 
+        sed -r 's/<\/?span>//g' | 
+        tr '\n' '\f' | 
+        sed 's/\f$/\n/' | 
+        sed 's/\f/, /g')
+    e=$(echo "$content" | 
+        tr -d '\n' | 
+        grep -P -o '<ul class="base-list switch_part".*?>.*?<\/ul>' | 
+        grep -o -P '<li.*?li>' |
+        sed -r 's/<\/?[a-z]+[^>]*>//g' | 
+        tr -d ' ')
+    
+    mkdir -p $dir
+    if [[ -n "$p" || -n "$e" ]]; then
+        (echo "$p"; echo "$e") | tee $dir/$word
+    fi
+}
+
+for word in $*; do
+    word=${word,,}
+    if $remove; then
+        sed -r -i "/^$word$/ d" $hf
+        rm -f $dir/$word
+    else
+        echo $word:
+        result=$(translate $word)
+        if [[ -n $result ]]; then
+            while read -r line; do
+                echo -e "\t$line"
+            done < <(echo "$result")
+    
+            if ! grep "^$word$" $hf > /dev/null; then # save to history
+                echo $word >> $hf
+            fi
+        fi
+        echo
+    fi
+done 
