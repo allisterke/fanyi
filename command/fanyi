@@ -15,6 +15,36 @@ if [[ $1 == "-r" ]]; then
     shift
 fi
 
+example() {
+	(   echo let result=;
+	    curl -s "http://www.iciba.com/index.php?a=getWordMean&c=search&list=1%2C2%2C3%2C4%2C5%2C8%2C9%2C10%2C12%2C13%2C14%2C15%2C18%2C21%2C22%2C24%2C3003%2C3004%2C3005&word=$1";
+	    cat <<EOFXXX
+;
+let ex = [];
+
+if(result.collins && result.collins[0]) {
+    let entry = result.collins[0].entry;
+    for(let i = 0; i < entry.length; ++ i) {
+        for(let j = 0; j < entry[i].example.length; ++ j) {
+            ex.push(entry[i].example[j].ex);
+        }
+    }
+}
+
+if(ex.length == 0 && result.sentence) {
+    let sentence = result.sentence;
+    for(let i = 0; i < sentence.length; ++ i) {
+        ex.push(sentence[i].Network_en);
+    }
+}
+
+for(let i = 0; i < ex.length; ++ i) {
+    console.log((ex[i]));
+}
+EOFXXX
+	) | node
+}
+
 translate() {
     word=${1,,} 
     if [[ -f $dir/$word ]]; then
@@ -38,7 +68,8 @@ translate() {
     
     mkdir -p $dir
     if [[ -n "$p" || -n "$e" ]]; then
-        (echo "$p"; echo "$e") | tee $dir/$word
+		ex=$(example $word | cat -n)
+        (echo "$p"; echo "$e"; echo; echo "$ex") | tee $dir/$word
     fi
 }
 
