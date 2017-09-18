@@ -1,5 +1,13 @@
+# Prerequisites
+bash
+curl
+node
+
 # Install
-sudo make
+sudo make install
+
+# Uninstall
+sudo make clean
 
 # Use
 type 'fanyi' to show usage
