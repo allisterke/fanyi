@@ -5,3 +5,7 @@ fanyi:
 	cp completion/fanyi /etc/bash_completion.d
 
 install: fanyi
+
+clean:
+	rm -f /usr/bin/fanyi 
+	rm -f /etc/bash_completion.d/fanyi 
