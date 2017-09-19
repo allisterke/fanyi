@@ -1,14 +1,26 @@
 #!/bin/bash
 if [[ $# -eq 0 ]]; then
-    echo -e "usage:\t $(basename $0) [-r] <WORD> ..."
-    echo "options: "
-    echo -e "\t -r: remove"
-    exit 1
+    echo -e "usage:"
+    echo -e "\t search: $(basename $0) <WORD> ..."
+    echo -e "\t remove: $(basename $0) -r <WORD> ..."
+    echo -e "\t memory: $(basename $0) -l [N]"
+    exit 0
 fi
 
 hf=~/.fanyi_history
 dir=~/.fanyi
 remove=false
+
+if [[ $1 == '-l' ]]; then
+	shift
+	n=${1:-1}
+	words=($(cat $hf))
+	for((i=0;i<n;++i)); do
+		index=$((RANDOM % ${#words[*]}))
+		$0 ${words[$index]}
+	done
+	exit $?
+fi
 
 if [[ $1 == "-r" ]]; then
     remove=true
