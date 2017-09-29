@@ -30,7 +30,7 @@ fi
 query() {
 node <<EOFXXX
 try {
-	let result=$(curl -s "http://www.iciba.com/index.php?a=getWordMean&c=search&list=1%2C2%2C3%2C4%2C5%2C8%2C9%2C10%2C12%2C13%2C14%2C15%2C18%2C21%2C22%2C24%2C3003%2C3004%2C3005&word=$1");
+	let result=$(curl -0 -s "http://www.iciba.com/index.php?a=getWordMean&c=search&list=1%2C2%2C3%2C4%2C5%2C8%2C9%2C10%2C12%2C13%2C14%2C15%2C18%2C21%2C22%2C24%2C3003%2C3004%2C3005&word=$1");
 	
 	if(result.baesInfo && result.baesInfo.symbols && result.baesInfo.symbols[0]) {
 		let ph_en = result.baesInfo.symbols[0].ph_en;
@@ -43,22 +43,25 @@ try {
 	
 	let ex = [];
 	
-	if(result.collins && result.collins[0]) {
-	    let entry = result.collins[0].entry;
-	    for(let i = 0; i < entry.length; ++ i) {
-	        for(let j = 0; j < entry[i].example.length; ++ j) {
-	            ex.push(entry[i].example[j].ex);
+	if(result.collins) {
+		for(let i = 0; i < result.collins.length; ++ i) { 
+			let entry = result.collins[i].entry;
+			for(let j = 0; j < entry.length; ++ j) {
+				for(let k = 0; k < entry[j].example.length; ++ k) {
+					ex.push(entry[i].example[j].ex);
+				}
 	        }
 	    }
 	}
 	
-	if(ex.length == 0 && result.sentence) {
+	if(result.sentence) {
 	    let sentence = result.sentence;
 	    for(let i = 0; i < sentence.length; ++ i) {
 	        ex.push(sentence[i].Network_en);
 	    }
 	}
 	
+	ex = ex.slice(0, 5);
 	for(let i = 0; i < ex.length; ++ i) {
 	    console.log(\`\${i+1}\t\${ex[i]}\`);
 	}
