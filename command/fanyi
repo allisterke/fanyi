@@ -29,6 +29,12 @@ fi
 
 query() {
 node <<EOFXXX
+function add(a, b) {
+	if(a.indexOf(b) < 0) {
+		a.push(b);
+	}
+}
+
 try {
 	let result=$(curl -0 -s "http://www.iciba.com/index.php?a=getWordMean&c=search&list=1%2C2%2C3%2C4%2C5%2C8%2C9%2C10%2C12%2C13%2C14%2C15%2C18%2C21%2C22%2C24%2C3003%2C3004%2C3005&word=$1");
 	
@@ -48,7 +54,7 @@ try {
 			let entry = result.collins[i].entry;
 			for(let j = 0; j < entry.length; ++ j) {
 				for(let k = 0; k < entry[j].example.length; ++ k) {
-					ex.push(entry[i].example[j].ex);
+					add(ex, entry[j].example[k].ex);
 				}
 	        }
 	    }
@@ -57,7 +63,7 @@ try {
 	if(result.sentence) {
 	    let sentence = result.sentence;
 	    for(let i = 0; i < sentence.length; ++ i) {
-	        ex.push(sentence[i].Network_en);
+	        add(ex, sentence[i].Network_en);
 	    }
 	}
 	
